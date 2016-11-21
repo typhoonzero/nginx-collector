@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-collector-v1
+  namespace: test
+  labels:
+    k8s-app: nginx-collector
+    version: v1
+#    kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        k8s-app: nginx-collector
+        name: nginx-collector
+    spec:
+      hostNetwork: true
+      imagePullSecrets: 
+        - name: bfd-docker-registry
+      containers:
+      - image: docker.baifendian.com/nginx-collector:1.1
+        name: nginx-collector
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INFLUX_HOST
+          value: 10.100.0.92
+        - name: INFLUX_PORT
+          value: "25826"
+        - name: INFLUX_USER
+          value: admin
+        - name: INFLUX_PASSWD
+          value: admin
+        - name: NGINX_HOST
+          value: 127.0.0.1
+        - name: NGINX_PORT
+          value: "18080"
+      nodeSelector:
+        role: ingress
+
